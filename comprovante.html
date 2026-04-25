@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gerador de Comprovante</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f6f8;
+        --card: #ffffff;
+        --text: #1f2328;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --pill: #15803d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 16px;
+      }
+      header {
+        padding: 22px 20px 10px;
+        text-align: center;
+      }
+      header h1 {
+        margin: 0 0 4px;
+        font-size: 26px;
+      }
+      header p {
+        margin: 0;
+        color: var(--muted);
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 16px 20px 32px;
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+        gap: 18px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+      }
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+      }
+      form {
+        display: grid;
+        gap: 12px;
+      }
+      label {
+        font-size: 15px;
+        color: var(--muted);
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 15px;
+        background: #fff;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .field-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .small {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      button {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      .primary {
+        background: #1f2937;
+        color: #fff;
+      }
+      .ghost {
+        background: #f3f4f6;
+        color: #1f2937;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .preview {
+        border-radius: 14px;
+        padding: 18px;
+        min-height: 420px;
+        background: #fff;
+      }
+      .preview-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 8px;
+        font-size: 16px;
+      }
+      .preview-list .label {
+        font-weight: 700;
+      }
+      .numbers-title {
+        margin: 18px 0 10px;
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .numbers-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 4px;
+      }
+      .pill {
+        background: var(--pill);
+        color: #fff;
+        border-radius: 8px;
+        padding: 6px 10px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 13px;
+      }
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+        }
+        header,
+        .card:not(.preview-card),
+        .actions {
+          display: none;
+        }
+        main {
+          padding: 0;
+        }
+        .preview {
+          border: none;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Gerador de Comprovante</h1>
+      <p>Preencha os dados, gere o comprovante e edite se precisar.</p>
+    </header>
+    <main>
+      <section class="card">
+        <h2>Dados do comprovante</h2>
+        <form id="receipt-form">
+          <div>
+            <label for="buyer">Comprador</label>
+            <input id="buyer" name="buyer" placeholder="Nome do cliente" />
+          </div>
+          <div>
+            <label for="status">Situação</label>
+            <select id="status" name="status">
+              <option value="Pago">Pago</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div>
+            <label for="quantity">Quantidade</label>
+            <input id="quantity" name="quantity" placeholder="Ex: 150" />
+          </div>
+          <div>
+            <label for="total">Total</label>
+            <input id="total" name="total" placeholder="R$ 25,99" />
+          </div>
+          <div>
+            <label for="numbers">Títulos</label>
+            <textarea
+              id="numbers"
+              name="numbers"
+              placeholder="0007902, 0068170, 0085461..."
+            ></textarea>
+            <div class="field-actions">
+              <button type="button" class="ghost small" id="generate-numbers">
+                Gerar números aleatórios
+              </button>
+            </div>
+          </div>
+          <div class="actions">
+            <button type="button" class="ghost" id="print">
+              Imprimir / Salvar PDF
+            </button>
+          </div>
+          <p class="muted">
+            Dica: use quebra de linha ou vírgula para separar os números.
+          </p>
+        </form>
+      </section>
+
+      <section class="card preview-card">
+        <h2>Pré-visualização</h2>
+        <div class="preview" id="preview">
+          <ul class="preview-list">
+            <li><span class="label">Comprador:</span> <span id="preview-buyer">---</span></li>
+            <li><span class="label">Situação:</span> <span id="preview-status">---</span></li>
+            <li><span class="label">Quantidade:</span> <span id="preview-quantity">---</span></li>
+            <li><span class="label">Total: </span> <span id="preview-total">---</span></li>
+          </ul>
+          <div class="numbers-title">Títulos:</div>
+          <div class="numbers-grid" id="preview-numbers"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("receipt-form");
+      const fields = {
+        buyer: document.getElementById("preview-buyer"),
+        status: document.getElementById("preview-status"),
+        quantity: document.getElementById("preview-quantity"),
+        total: document.getElementById("preview-total"),
+      };
+      const previewNumbers = document.getElementById("preview-numbers");
+      const totalInput = document.getElementById("total");
+
+      const defaults = {
+        buyer: "---",
+        status: "---",
+        quantity: "---",
+        total: "---",
+      };
+
+      function setText(field, value) {
+        fields[field].textContent = value || defaults[field];
+      }
+
+      function normalizeCurrencyString(raw) {
+        if (!/^[\d.,]+$/.test(raw)) return null;
+
+        const hasDot = raw.includes(".");
+        const hasComma = raw.includes(",");
+
+        if (hasDot && hasComma) {
+          const lastDot = raw.lastIndexOf(".");
+          const lastComma = raw.lastIndexOf(",");
+          if (lastComma > lastDot) {
+            return raw.replace(/\./g, "").replace(",", ".");
+          }
+          return raw.replace(/,/g, "");
+        }
+
+        if (hasComma) {
+          const parts = raw.split(",");
+          if (parts.length === 2 && parts[1].length <= 2) {
+            return raw.replace(",", ".");
+          }
+          return raw.replace(/,/g, "");
+        }
+
+        if (hasDot) {
+          const parts = raw.split(".");
+          if (parts.length === 2 && parts[1].length <= 2) {
+            return raw;
+          }
+          return raw.replace(/\./g, "");
+        }
+
+        return raw;
+      }
+
+      function formatInteger(value) {
+        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      function formatTotal(value) {
+        if (!value) return "";
+        return String(value)
+          .replace(/\./g, "TEMP")
+          .replace(/,/g, ".")
+          .replace(/TEMP/g, ",");
+      }
+
+      function generateRandomNumbers(count) {
+        const total = Number.parseInt(count, 10);
+        if (!Number.isFinite(total) || total <= 0) {
+          return [];
+        }
+        const results = new Set();
+        while (results.size < total) {
+          const value = Math.floor(1000000 + Math.random() * 9000000);
+          results.add(String(value));
+        }
+        return Array.from(results);
+      }
+
+      function updatePreview() {
+        const data = new FormData(form);
+        setText("buyer", data.get("buyer")?.trim());
+        setText("status", data.get("status"));
+        setText("quantity", data.get("quantity")?.trim());
+        setText("total", formatTotal(data.get("total")));
+
+        const numbersRaw = data.get("numbers") || "";
+        const numbers = numbersRaw
+          .split(/[\n,;]+/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+        const maxItems = 60;
+        const shownNumbers = numbers.slice(0, maxItems);
+        previewNumbers.innerHTML = "";
+        if (shownNumbers.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "muted";
+          empty.textContent = "Nenhum número informado.";
+          previewNumbers.appendChild(empty);
+        } else {
+          shownNumbers.forEach((value) => {
+            const pill = document.createElement("div");
+            pill.className = "pill";
+            pill.textContent = value;
+            previewNumbers.appendChild(pill);
+          });
+        }
+      }
+
+      document
+        .getElementById("generate-numbers")
+        .addEventListener("click", () => {
+          const quantity = document.getElementById("quantity").value;
+          const randomNumbers = generateRandomNumbers(quantity);
+          if (randomNumbers.length > 0) {
+            document.getElementById("numbers").value = randomNumbers.join(", ");
+          }
+          updatePreview();
+        });
+
+      if (totalInput) {
+        totalInput.addEventListener("input", () => {
+          totalInput.value = formatTotal(totalInput.value);
+          updatePreview();
+        });
+      }
+
+      form.addEventListener("input", () => {
+        updatePreview();
+      });
+
+      document.getElementById("print").addEventListener("click", () => {
+        updatePreview();
+        window.print();
+      });
+
+      updatePreview();
+    </script>
+  </body>
+</html>
