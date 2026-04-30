@@ -58,6 +58,9 @@ const findColumns = (headers) => {
     if (["titulo", "titulos", "titulos", "numeros", "numeros", "numbers", "boletos", "codigos"].some((item) => key.includes(item))) {
       colMap.numbers = index;
     }
+    if (key === "e2e" || key.includes("e2e")) {
+      colMap.e2e = index;
+    }
   });
 
   if (headers.length > 0) {
@@ -66,6 +69,7 @@ const findColumns = (headers) => {
     if (colMap.quantity === undefined) colMap.quantity = 2;
     if (colMap.total === undefined) colMap.total = 3;
     if (colMap.numbers === undefined) colMap.numbers = 4;
+    if (colMap.e2e === undefined) colMap.e2e = 5;
   }
 
   return colMap;
@@ -77,7 +81,15 @@ export default function App() {
   const [quantity, setQuantity] = useState("");
   const [total, setTotal] = useState("");
   const [numbers, setNumbers] = useState("");
+  const [e2e, setE2e] = useState("");
   const [batchPreviews, setBatchPreviews] = useState([]);
+
+  const cellText = (row, colIndex) => {
+    if (colIndex === undefined) return "";
+    const raw = row[colIndex];
+    if (raw === undefined || raw === null) return "";
+    return String(raw).trim();
+  };
 
   const randomNumberTitles = (count) => {
     const total = Number.parseInt(count, 10);
@@ -121,6 +133,7 @@ export default function App() {
         setQuantity(firstQuantity);
         setTotal(firstRow[colMap.total] || "");
         setNumbers(randomNumberTitles(firstQuantity || 60).join(", "));
+        setE2e(cellText(firstRow, colMap.e2e));
       }
 
       const previews = rows.map((row, index) => {
@@ -132,6 +145,7 @@ export default function App() {
           quantity: quantityValue,
           total: row[colMap.total] || "",
           numbers: randomNumberTitles(quantityValue || 60).join(", "),
+          e2e: cellText(row, colMap.e2e),
         };
       });
       setBatchPreviews(previews);
@@ -226,6 +240,17 @@ export default function App() {
               </div>
             </div>
             <div>
+              <label htmlFor="e2e">E2E</label>
+              <textarea
+                id="e2e"
+                name="e2e"
+                placeholder="Preenchido pela coluna E2E do Excel"
+                value={e2e}
+                onChange={(event) => setE2e(event.target.value)}
+                rows={3}
+              />
+            </div>
+            <div>
               <label htmlFor="excel-file">Arquivo Excel</label>
               <input type="file" id="excel-file" name="excel-file" accept=".xlsx,.xls" onChange={(event) => handleExcelProcess(event.target.files?.[0])} />
             </div>
@@ -265,6 +290,8 @@ export default function App() {
               </ul>
               <div className="numbers-title">Títulos:</div>
               <div className="numbers-grid">{renderPills(numbers)}</div>
+              <div className="numbers-title e2e-heading">E2E:</div>
+              <div className="e2e-value">{e2e || "—"}</div>
             </div>
             {batchPreviews.map((item) => (
               <div className="preview" key={item.id}>
@@ -285,6 +312,8 @@ export default function App() {
                 </ul>
                 <div className="numbers-title">Títulos:</div>
                 <div className="numbers-grid">{renderPills(item.numbers)}</div>
+                <div className="numbers-title e2e-heading">E2E:</div>
+                <div className="e2e-value">{item.e2e || "—"}</div>
               </div>
             ))}
           </div>

@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+
+# Vite
+.vite/
+*.local
+
+# gh-pages (npm run deploy) cache
+.cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.env
+.env.*

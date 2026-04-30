@@ -1,7 +1,11 @@
 {
-  "homepage": "https://AlexAlonso26.github.io/4utomata",
+  "homepage": "https://AlexAlonso26.github.io/Automata",
   "name": "automata-react",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexAlonso26/Automata.git"
+  },
   "version": "0.0.1",
   "type": "module",
   "scripts": {

@@ -140,6 +140,16 @@ button {
   font-weight: 700;
   font-size: 13px;
 }
+.e2e-heading {
+  margin-top: 16px;
+}
+.e2e-value {
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
 @media (max-width: 900px) {
   main {
     grid-template-columns: 1fr;
